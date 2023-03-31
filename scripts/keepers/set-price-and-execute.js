@@ -1,13 +1,8 @@
+const { SYMBOLS_WITH_PRECISION } = require("./common");
+
 const POSITION_ROUTER_ADDRESS = "0x0"; // TODO: update
 const MAX_INCREASE_POSITIONS = 1;
 const MAX_DECREASE_POSITIONS = 2;
-const SYMBOLS_WITH_PRECISION = [
-  {symbol: "CANTO", precision: 1000},
-  {symbol: "ETH", precision: 1000},
-  {symbol: "ATOM", precision: 1000},
-  {symbol: "USDC", precision: 1000},
-  {symbol: "USDT", precision: 1000},
-];
 
 async function main() {
   const contract = await getFastPriceFeedContract();

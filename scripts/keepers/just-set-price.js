@@ -1,10 +1,4 @@
-const SYMBOLS_WITH_PRECISION = [
-  {symbol: "CANTO", precision: 1000},
-  {symbol: "ETH", precision: 1000},
-  {symbol: "ATOM", precision: 1000},
-  {symbol: "USDC", precision: 1000},
-  {symbol: "USDT", precision: 1000},
-];
+const { SYMBOLS_WITH_PRECISION } = require("./common");
 
 async function main() {
   const contract = await getFastPriceFeedContract();

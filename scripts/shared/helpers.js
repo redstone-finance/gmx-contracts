@@ -2,26 +2,32 @@ const fs = require('fs')
 const path = require('path')
 const parse = require('csv-parse')
 
-const network = (process.env.HARDHAT_NETWORK || 'mainnet');
+// const network = (process.env.HARDHAT_NETWORK || 'mainnet');
+const network = "canto";
 
 const ARBITRUM = 42161
 const AVALANCHE = 43114
+const CANTO = 7701
 
 const {
   ARBITRUM_URL,
   AVAX_URL,
   ARBITRUM_DEPLOY_KEY,
-  AVAX_DEPLOY_KEY
+  CANTO_URL,
+  CANTO_DEPLOY_KEY,
+  // AVAX_DEPLOY_KEY
 } = require("../../env.json")
 
 const providers = {
   arbitrum: new ethers.providers.JsonRpcProvider(ARBITRUM_URL),
-  avax: new ethers.providers.JsonRpcProvider(AVAX_URL)
+  avax: new ethers.providers.JsonRpcProvider(AVAX_URL),
+  canto: new ethers.providers.JsonRpcProvider(CANTO_URL),
 }
 
 const signers = {
   arbitrum: new ethers.Wallet(ARBITRUM_DEPLOY_KEY).connect(providers.arbitrum),
-  avax: new ethers.Wallet(ARBITRUM_DEPLOY_KEY).connect(providers.avax)
+  avax: new ethers.Wallet(ARBITRUM_DEPLOY_KEY).connect(providers.avax),
+  canto: new ethers.Wallet(CANTO_DEPLOY_KEY).connect(providers.canto),
 }
 
 function sleep(ms) {
@@ -49,6 +55,10 @@ function getChainId(network) {
 
   if (network === "avax") {
     return 43114
+  }
+
+  if (network === "canto") {
+    return CANTO;
   }
 
   throw new Error("Unsupported network")

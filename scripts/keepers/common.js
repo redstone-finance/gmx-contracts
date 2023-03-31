@@ -1,5 +1,18 @@
+const { contractAt, sendTxn } = require("../shared/helpers");
 const BN = require('bn.js')
 const redstone = require("redstone-api");
+
+// TODO: set
+const POSITION_ROUTER_ADDRESS = "0xdb07196Dd14f97b059EaA95228d2cb66A2808aC4";
+const FAST_PRICE_FEED_ADDRESS = "";
+
+const SYMBOLS_WITH_PRECISION = [
+  {symbol: "CANTO", precision: 1000},
+  {symbol: "ETH", precision: 1000},
+  {symbol: "ATOM", precision: 1000},
+  {symbol: "USDC", precision: 1000},
+  {symbol: "USDT", precision: 1000},
+];
 
 async function generatePriceBits(symbolsWithPrecisions) {
   const symbols = symbolsWithPrecisions.map(({symbol}) => symbol);
@@ -45,8 +58,18 @@ function getPriceBits(prices) {
   return priceBits.toString()
 }
 
+async function getPositionRouterContract() {
+  return await contractAt(
+    "PositionRouter",
+    POSITION_ROUTER_ADDRESS
+  );
+}
+
 async function getFastPriceFeedContract() {
-  throw new Error("Not implemented");
+  return await contractAt(
+    "FastPriceFeed",
+    FAST_PRICE_FEED_ADDRESS
+  );
 }
 
 
@@ -55,4 +78,7 @@ module.exports = {
   normalizePrice,
   getPriceBits,
   getFastPriceFeedContract,
+  getPositionRouterContract,
+
+  SYMBOLS_WITH_PRECISION,
 };

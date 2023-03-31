@@ -1,25 +1,24 @@
 const BN = require('bn.js')
 const redstone = require("redstone-api");
 
-async function generatePriceBits(symbols) {
+async function generatePriceBits(symbolsWithPrecisions) {
+  const symbols = symbolsWithPrecisions.map(({symbol}) => symbol);
   const prices = await redstone.query().symbols(symbols).latest().exec({
     provider: "redstone"
   });
+
   const values = [];
 
-  for (const symbol of symbols) {
-    const normalizedValue = normalizePrice(prices[symbol]);
+  for (const { symbol, precision } of symbolsWithPrecisions) {
+    const normalizedValue = normalizePrice(prices[symbol], precision);
     values.push(normalizedValue);
   }
 
   return getPriceBits(values);
 }
 
-function normalizePrice(price) {
-  // if (price.symbol === "CANTO") {
-  //   // apply custom logic
-  // }
-  return Math.round(price.value * 10000);
+function normalizePrice(price, precision) {
+  return Math.round(price.value * precision);
 }
 
 function getPriceBits(prices) {

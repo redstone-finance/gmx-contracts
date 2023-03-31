@@ -45,8 +45,14 @@ function getPriceBits(prices) {
   return priceBits.toString()
 }
 
+async function getFastPriceFeedContract() {
+  throw new Error("Not implemented");
+}
+
+
 module.exports = {
   generatePriceBits,
   normalizePrice,
   getPriceBits,
+  getFastPriceFeedContract,
 };

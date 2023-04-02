@@ -1,4 +1,10 @@
-const { SYMBOLS_WITH_PRECISION } = require("./common");
+const { SYMBOLS_WITH_PRECISION, getFastPriceFeedContract, generatePriceBits } = require("./common");
+
+// Usage: npx hardhat run scripts/keepers/just-set-prices.js
+
+const GAS_LIMIT = 100000;
+
+main();
 
 async function main() {
   const contract = await getFastPriceFeedContract();
@@ -6,8 +12,10 @@ async function main() {
   const priceBits = await generatePriceBits(SYMBOLS_WITH_PRECISION);
 
   const tx = await contract.setPricesWithBits(
-    priceBits, // _priceBits
-    timestamp // _timestamp
+    priceBits,
+    timestamp, {
+      gasLimit: GAS_LIMIT,
+    }
   );
 
   console.log(`Tx sent: ${tx.hash}`);

@@ -1,17 +1,15 @@
-const { contractAt, sendTxn } = require("../shared/helpers");
+const { contractAt, sendTxn, signers } = require("../shared/helpers");
 const BN = require('bn.js')
 const redstone = require("redstone-api");
+const { providers } = require("../shared/helpers");
 
-// TODO: set
-const POSITION_ROUTER_ADDRESS = "0xdb07196Dd14f97b059EaA95228d2cb66A2808aC4";
-const FAST_PRICE_FEED_ADDRESS = "";
+const POSITION_ROUTER_ADDRESS = "0xA4004A335429cf9d1eE148ccF822fE63741D597D";
+const FAST_PRICE_FEED_ADDRESS = "0x5dE1cFC7dB4f10181604D2847681f0aBaDBeA174";
 
 const SYMBOLS_WITH_PRECISION = [
-  {symbol: "CANTO", precision: 1000},
-  {symbol: "ETH", precision: 1000},
-  {symbol: "ATOM", precision: 1000},
-  {symbol: "USDC", precision: 1000},
-  {symbol: "USDT", precision: 1000},
+  { symbol: "ETH", address: "0xCa03230E7FB13456326a234443aAd111AC96410A", precision: 1000 },
+  { symbol: "CANTO", address: "0x04a72466De69109889Db059Cb1A4460Ca0648d9D", precision: 1000 },
+  { symbol: "ATOM", address: "0x40E41DC5845619E7Ba73957449b31DFbfB9678b2", precision: 1000 },
 ];
 
 async function generatePriceBits(symbolsWithPrecisions) {
@@ -68,7 +66,8 @@ async function getPositionRouterContract() {
 async function getFastPriceFeedContract() {
   return await contractAt(
     "FastPriceFeed",
-    FAST_PRICE_FEED_ADDRESS
+    FAST_PRICE_FEED_ADDRESS,
+    signers.canto
   );
 }
 

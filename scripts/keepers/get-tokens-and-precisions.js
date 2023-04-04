@@ -1,5 +1,7 @@
 const { getFastPriceFeedContract } = require("./common");
 
+// Usage: npx hardhat run scripts/keepers/get-tokens-and-precisions.js
+
 main();
 
 async function main() {

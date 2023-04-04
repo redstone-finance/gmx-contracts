@@ -1,4 +1,4 @@
-const { getFastPriceFeedContract, SYMBOLS_WITH_PRECISION } = require("./common");
+const { getFastPriceFeedContract } = require("./common");
 
 const ADDRESS_TO_CHECK = "0xD372947F3D0E308C9f77ae76f1eb4C94e6388a5d";
 

@@ -3,8 +3,9 @@ const BN = require('bn.js')
 const redstone = require("redstone-api");
 const { providers } = require("../shared/helpers");
 
-const POSITION_ROUTER_ADDRESS = "0xA4004A335429cf9d1eE148ccF822fE63741D597D";
-const FAST_PRICE_FEED_ADDRESS = "0x5dE1cFC7dB4f10181604D2847681f0aBaDBeA174";
+const POSITION_ROUTER_ADDRESS = "0x13D1bc70457A3897A5E9Aa4b01d8289995E6210c";
+const FAST_PRICE_FEED_ADDRESS = "0x05da57eDB8bfb0c881d6636Cb99d9eFBF8784D62";
+const VAULT_PRICE_FEED_ADDRESS = "0xD8a16ba50DF3448b4262F076527181E9f8719Dc1";
 
 const SYMBOLS_WITH_PRECISION = [
   { symbol: "ETH", address: "0xCa03230E7FB13456326a234443aAd111AC96410A", precision: 1000 },
@@ -71,6 +72,14 @@ async function getFastPriceFeedContract() {
   );
 }
 
+async function getVaultPriceFeedContract() {
+  return await contractAt(
+    "VaultPriceFeed",
+    VAULT_PRICE_FEED_ADDRESS,
+    signers.canto
+  );
+}
+
 
 module.exports = {
   generatePriceBits,
@@ -78,6 +87,7 @@ module.exports = {
   getPriceBits,
   getFastPriceFeedContract,
   getPositionRouterContract,
+  getVaultPriceFeedContract,
 
   SYMBOLS_WITH_PRECISION,
 };

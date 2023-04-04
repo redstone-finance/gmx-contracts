@@ -1,6 +1,6 @@
 const { SYMBOLS_WITH_PRECISION, getFastPriceFeedContract, generatePriceBits } = require("./common");
 
-// Usage: npx hardhat run scripts/keepers/just-set-prices.js
+// Usage: npx hardhat run scripts/keepers/set-prices-with-bits.js
 
 const GAS_LIMIT = 100000;
 

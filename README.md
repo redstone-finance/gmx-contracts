@@ -1,5 +1,5 @@
 # GMX Contracts
-Contracts for GMX.
+Contracts for GMX integrated with Redstone.
 
 Docs at https://gmxio.gitbook.io/gmx/contracts.
 
@@ -9,6 +9,9 @@ If npx is not installed yet:
 
 Install packages:
 `npm i`
+
+## Set variables
+Add `env.json` and set variables required by hardhat eg. `env-template.json`
 
 ## Compile Contracts
 `npx hardhat compile`

@@ -1,5 +1,6 @@
 # GMX Contracts
-Contracts for GMX.
+
+Contracts for GMX integrated with RedStone oracles.
 
 Docs at https://gmxio.gitbook.io/gmx/contracts.
 

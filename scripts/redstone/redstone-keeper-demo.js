@@ -1,5 +1,4 @@
-const {deployAll, UPDATER_1, UPDATER_2, addFastPriceFeedUpdaters, USER_1, POSITION_ROUTER_EXECUTION_FEE,
-  addFastPriceFeedTokens, TOKEN_DECIMALS
+const {deployAll, UPDATER_1, UPDATER_2, addFastPriceFeedUpdaters, USER_1, POSITION_ROUTER_EXECUTION_FEE, TOKEN_DECIMALS
 } = require("./setup-common");
 const {updatePriceBitsAndOptionallyExecute} = require("./keeper-common");
 const {expandDecimals} = require("../../test/shared/utilities");
@@ -9,11 +8,10 @@ const {sleep} = require("../shared/helpers");
 const GMX_PRICE_PRECISION=30
 
 async function main() {
-  const {positionRouter, router, fastPriceFeed, vault, weth, atom} = await deployAll()
-  const tokens = [{symbol: "ETH", precision: 100_000, address: weth.address}, {symbol: "ATOM", precision: 100_000, address: atom.address}]
+  const {positionRouter, router, fastPriceFeed, vault, weth, tokens} = await deployAll()
   await addFastPriceFeedUpdaters(fastPriceFeed, [UPDATER_1.address, UPDATER_2.address])
-  await addFastPriceFeedTokens(fastPriceFeed, tokens)
-  await openPosition(positionRouter, router, weth, weth)
+
+  await openPosition(positionRouter, router, weth)
 
   await updatePriceBitsAndOptionallyExecute(tokens, fastPriceFeed, positionRouter, UPDATER_1)
 
@@ -31,15 +29,15 @@ async function main() {
   pricesInFeed1.forEach((priceInFeed1, index) => console.log(`${priceInFeed1.token}: ${priceInFeed1.price} -> ${pricesInFeed2[index].price}`))
 }
 
-async function openPosition(positionRouter, router, collateralToken, indexToken) {
+async function openPosition(positionRouter, router, token) {
   console.log("Increasing position")
 
   await router.connect(USER_1).approvePlugin(positionRouter.address)
-  await collateralToken.connect(USER_1).approve(router.address, expandDecimals(1, TOKEN_DECIMALS))
+  await token.connect(USER_1).approve(router.address, expandDecimals(1, TOKEN_DECIMALS))
 
   const tx = await positionRouter.connect(USER_1).createIncreasePosition(
-    [collateralToken.address], // _path
-    indexToken.address, // _indexToken
+    [token.address], // _path
+    token.address, // _indexToken
     expandDecimals(1, TOKEN_DECIMALS), // _amountIn
     0, // _minOut
     toUsd(6000), // _sizeDelta

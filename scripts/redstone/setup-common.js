@@ -26,6 +26,8 @@ async function deployAll() {
   const {weth, atom} = await deployAndMintTokens()
   const {positionRouter, router, vault, usdg, positionUtils} = await setupPositionRouter(fastPriceFeed, weth, atom)
   await configureVault(vault, router, usdg, weth, atom, fastPriceFeed, positionRouter)
+  const tokens = [{symbol: "ETH", precision: 100_000, address: weth.address}, {symbol: "ATOM", precision: 100_000, address: atom.address}]
+  await addFastPriceFeedTokens(fastPriceFeed, tokens)
   return {
     positionRouter: positionRouter,
     router: router,
@@ -33,7 +35,8 @@ async function deployAll() {
     vault: vault,
     weth: weth,
     atom: atom,
-    positionUtils: positionUtils
+    positionUtils: positionUtils,
+    tokens: tokens
   }
 }
 
@@ -183,7 +186,6 @@ async function configureVault(vault, router, usdg, weth, atom, fastPriceFeed, po
 module.exports = {
   deployAll,
   addFastPriceFeedUpdaters,
-  addFastPriceFeedTokens,
   UPDATER_1,
   UPDATER_2,
   USER_1,

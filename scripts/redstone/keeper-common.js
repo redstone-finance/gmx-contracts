@@ -4,9 +4,9 @@ const {getPriceBits} = require("../../test/shared/utilities");
 const MAX_INCREASE_POSITIONS = 5
 const MAX_DECREASE_POSITIONS = 5
 
-async function updatePriceBitsAndExecute(symbolsWithPrecisions, fastPriceFeed, positionRouter, updater) {
+async function updatePriceBitsAndOptionallyExecute(symbolsWithPrecisions, fastPriceFeed, positionRouter, updater) {
   const priceBits = await fetchPriceBits(symbolsWithPrecisions)
-  await setPriceBitsAndExecute(priceBits, fastPriceFeed, positionRouter, updater)
+  await setPriceBitsAndOptionallyExecute(priceBits, fastPriceFeed, positionRouter, updater)
 }
 
 async function fetchPrices(symbols) {
@@ -25,22 +25,41 @@ async function fetchPriceBits(symbolsWithPrecisions) {
   return getPriceBits(normalizedPrices)
 }
 
-async function setPriceBitsAndExecute(priceBits, fastPriceFeed, positionRouter, updater) {
-  console.log(`Updating price bits: ${priceBits} and executing`)
+async function setPriceBitsAndOptionallyExecute(priceBits, fastPriceFeed, positionRouter, updater) {
+  console.log("Getting position queue")
+  const positionQueue = await getPositionQueueLengths(positionRouter)
+  console.log(`Position queue: ${JSON.stringify(positionQueue)}`)
   const timestamp = Math.floor(Date.now() / 1000)
-  //TODO: fetch
-  const endIndexForIncreasePositions = 1
-  const endIndexForDecreasePositions = 1
-  const tx = await fastPriceFeed.connect(updater).setPricesWithBitsAndExecute(
-    positionRouter.address,
-    priceBits, // _priceBits
-    timestamp, // _timestamp
-    endIndexForIncreasePositions, // _endIndexForIncreasePositions
-    endIndexForDecreasePositions, // _endIndexForDecreasePositions
-    MAX_INCREASE_POSITIONS, // _maxIncreasePositions
-    MAX_DECREASE_POSITIONS // _maxDecreasePositions
-  )
-  await tx.wait();
+  if(positionQueue.increaseKeysLength - positionQueue.increaseKeyStart > 0 || positionQueue.decreaseKeysLength - positionQueue.decreaseKeyStart> 0) {
+    console.log(`Updating price bits: ${priceBits} and executing`)
+    const endIndexForIncreasePositions = positionQueue.increaseKeysLength
+    const endIndexForDecreasePositions = positionQueue.decreaseKeysLength
+    const tx = await fastPriceFeed.connect(updater).setPricesWithBitsAndExecute(
+      positionRouter.address,
+      priceBits, // _priceBits
+      timestamp, // _timestamp
+      endIndexForIncreasePositions, // _endIndexForIncreasePositions
+      endIndexForDecreasePositions, // _endIndexForDecreasePositions
+      MAX_INCREASE_POSITIONS, // _maxIncreasePositions
+      MAX_DECREASE_POSITIONS // _maxDecreasePositions
+    )
+    await tx.wait();
+  } else {
+    console.log(`Updating price bits: ${priceBits}`)
+    const tx = await fastPriceFeed.connect(updater).setPricesWithBits(priceBits, timestamp)
+    await tx.wait();
+  }
+
+}
+
+async function getPositionQueueLengths(positionRouter) {
+  const positionQueue = await positionRouter.getRequestQueueLengths()
+  return {
+    increaseKeyStart: positionQueue[0].toNumber(),
+    increaseKeysLength: positionQueue[1].toNumber(),
+    decreaseKeyStart: positionQueue[2].toNumber(),
+    decreaseKeysLength: positionQueue[3].toNumber()
+  }
 }
 
 function normalizePrice(price, precision) {
@@ -48,6 +67,6 @@ function normalizePrice(price, precision) {
 }
 
 module.exports = {
-  updatePriceBitsAndExecute,
+  updatePriceBitsAndOptionallyExecute,
   fetchPrices
 }

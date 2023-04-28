@@ -1,7 +1,7 @@
 const {deployAll, UPDATER_1, UPDATER_2, addFastPriceFeedUpdaters, USER_1, POSITION_ROUTER_EXECUTION_FEE,
   addFastPriceFeedTokens
 } = require("./setup-common");
-const {updatePriceBitsAndExecute} = require("./keeper-common");
+const {updatePriceBitsAndOptionallyExecute} = require("./keeper-common");
 const {expandDecimals} = require("../../test/shared/utilities");
 const {toUsd} = require("../../test/shared/units");
 const {sleep} = require("../shared/helpers");
@@ -13,7 +13,7 @@ async function main() {
   await addFastPriceFeedTokens(fastPriceFeed, tokens)
   await openPosition(positionRouter, router, weth, weth)
 
-  await updatePriceBitsAndExecute(tokens, fastPriceFeed, positionRouter, UPDATER_1)
+  await updatePriceBitsAndOptionallyExecute(tokens, fastPriceFeed, positionRouter, UPDATER_1)
 
   const pricesInFeed1 = await checkPricesInFeed(fastPriceFeed, tokens)
   console.log(`Prices in feed ${JSON.stringify(pricesInFeed1)}`)
@@ -21,7 +21,7 @@ async function main() {
 
   await sleep(60_000) // wait for price noticeably change
 
-  await updatePriceBitsAndExecute(tokens, fastPriceFeed, positionRouter, UPDATER_2)
+  await updatePriceBitsAndOptionallyExecute(tokens, fastPriceFeed, positionRouter, UPDATER_2)
   const pricesInFeed2 = await checkPricesInFeed(fastPriceFeed, tokens)
   console.log(`Prices in feed ${JSON.stringify(pricesInFeed2)}`)
 

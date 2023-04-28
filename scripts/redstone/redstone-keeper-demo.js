@@ -17,14 +17,7 @@ async function main() {
   const pricesInFeed = await checkPricesInFeed(fastPriceFeed, tokens)
   console.log(`Prices in feed ${JSON.stringify(pricesInFeed)}`)
 
-  const position = await vault.getPosition(
-    USER_1.address, // _account
-    weth.address, // _collateralToken
-    weth.address, // _indexToken
-    true // _isLong
-  )
-
-  console.log(JSON.stringify(position))
+  console.log(`GMX Position: ${JSON.stringify(await getPosition(vault, weth))}`)
 }
 
 async function openPosition(positionRouter, router, collateralToken, indexToken) {
@@ -53,6 +46,25 @@ async function checkPricesInFeed(fastPriceFeed, tokens) {
   return await Promise.all(tokens.map(async token => {
     return {token: token.symbol, price: ethers.utils.formatUnits(await fastPriceFeed.prices(token.address), 30)}
   }))
+}
+
+async function getPosition(vault, token) {
+  const position = await vault.getPosition(
+    USER_1.address, // _account
+    token.address, // _collateralToken
+    token.address, // _indexToken
+    true // _isLong
+  )
+  return {
+    size: ethers.utils.formatUnits(position[0], 30),
+    collateral: ethers.utils.formatUnits(position[1], 30),
+    averagePrice: ethers.utils.formatUnits(position[2], 30),
+    entryFundingRate: ethers.utils.formatUnits(position[3], 30),
+    reserveAmount: ethers.utils.formatUnits(position[4], 30),
+    realisedPnl: ethers.utils.formatUnits(position[5], 30),
+    hasProfit: position[6],
+    lastIncreasedTime: ethers.utils.formatUnits(position[7], 30)
+  }
 }
 
 main()

@@ -1,4 +1,4 @@
-const {deployAll, UPDATER_1, UPDATER_2, addFastPriceFeedUpdaters, USER_1, POSITION_ROUTER_EXECUTION_FEE, TOKEN_DECIMALS
+const {deployAll, KEEPER_1, KEEPER_2, addFastPriceFeedKeepers, USER_1, POSITION_ROUTER_EXECUTION_FEE, TOKEN_DECIMALS
 } = require("./setup-common");
 const {updatePriceBitsAndOptionallyExecute} = require("./keeper-common");
 const {expandDecimals} = require("../../test/shared/utilities");
@@ -9,11 +9,11 @@ const GMX_PRICE_PRECISION=30
 
 async function main() {
   const {positionRouter, router, fastPriceFeed, vault, weth, tokens} = await deployAll()
-  await addFastPriceFeedUpdaters(fastPriceFeed, [UPDATER_1.address, UPDATER_2.address])
+  await addFastPriceFeedKeepers(fastPriceFeed, [KEEPER_1.address, KEEPER_2.address])
 
   await openPosition(positionRouter, router, weth)
 
-  await updatePriceBitsAndOptionallyExecute(tokens, fastPriceFeed, positionRouter, UPDATER_1)
+  await updatePriceBitsAndOptionallyExecute(tokens, fastPriceFeed, positionRouter, KEEPER_1)
 
   const pricesInFeed1 = await checkPricesInFeed(fastPriceFeed, tokens)
   console.log(`Prices in feed ${JSON.stringify(pricesInFeed1)}`)
@@ -21,7 +21,7 @@ async function main() {
 
   await sleep(60_000) // wait for price noticeably change
 
-  await updatePriceBitsAndOptionallyExecute(tokens, fastPriceFeed, positionRouter, UPDATER_2)
+  await updatePriceBitsAndOptionallyExecute(tokens, fastPriceFeed, positionRouter, KEEPER_2)
   const pricesInFeed2 = await checkPricesInFeed(fastPriceFeed, tokens)
   console.log(`Prices in feed ${JSON.stringify(pricesInFeed2)}`)
 

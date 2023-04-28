@@ -4,9 +4,9 @@ const {getPriceBits} = require("../../test/shared/utilities");
 const MAX_INCREASE_POSITIONS = 5
 const MAX_DECREASE_POSITIONS = 5
 
-async function updatePriceBitsAndOptionallyExecute(symbolsWithPrecisions, fastPriceFeed, positionRouter, updater) {
+async function updatePriceBitsAndOptionallyExecute(symbolsWithPrecisions, fastPriceFeed, positionRouter, keeper) {
   const priceBits = await fetchPriceBits(symbolsWithPrecisions)
-  await setPriceBitsAndOptionallyExecute(priceBits, fastPriceFeed, positionRouter, updater)
+  await setPriceBitsAndOptionallyExecute(priceBits, fastPriceFeed, positionRouter, keeper)
 }
 
 async function fetchPrices(symbols) {
@@ -25,7 +25,7 @@ async function fetchPriceBits(symbolsWithPrecisions) {
   return getPriceBits(normalizedPrices)
 }
 
-async function setPriceBitsAndOptionallyExecute(priceBits, fastPriceFeed, positionRouter, updater) {
+async function setPriceBitsAndOptionallyExecute(priceBits, fastPriceFeed, positionRouter, keeper) {
   console.log("Getting position queue")
   const positionQueue = await getPositionQueueLengths(positionRouter)
   console.log(`Position queue: ${JSON.stringify(positionQueue)}`)
@@ -34,7 +34,7 @@ async function setPriceBitsAndOptionallyExecute(priceBits, fastPriceFeed, positi
     console.log(`Updating price bits: ${priceBits} and executing`)
     const endIndexForIncreasePositions = positionQueue.increaseKeysLength
     const endIndexForDecreasePositions = positionQueue.decreaseKeysLength
-    const tx = await fastPriceFeed.connect(updater).setPricesWithBitsAndExecute(
+    const tx = await fastPriceFeed.connect(keeper).setPricesWithBitsAndExecute(
       positionRouter.address,
       priceBits, // _priceBits
       timestamp, // _timestamp
@@ -46,7 +46,7 @@ async function setPriceBitsAndOptionallyExecute(priceBits, fastPriceFeed, positi
     await tx.wait();
   } else {
     console.log(`Updating price bits: ${priceBits}`)
-    const tx = await fastPriceFeed.connect(updater).setPricesWithBits(priceBits, timestamp)
+    const tx = await fastPriceFeed.connect(keeper).setPricesWithBits(priceBits, timestamp)
     await tx.wait();
   }
 

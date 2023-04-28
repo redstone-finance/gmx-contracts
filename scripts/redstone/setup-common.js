@@ -12,9 +12,9 @@ const localhostProvider = new ethers.providers.JsonRpcProvider("http://localhost
 // Hardhat Account #0
 const DEPLOYER = new ethers.Wallet("0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80").connect(localhostProvider)
 // Hardhat Account #1
-const UPDATER_1 = new ethers.Wallet("0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d").connect(localhostProvider)
+const KEEPER_1 = new ethers.Wallet("0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d").connect(localhostProvider)
 // Hardhat Account #2
-const UPDATER_2 = new ethers.Wallet("0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a").connect(localhostProvider)
+const KEEPER_2 = new ethers.Wallet("0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a").connect(localhostProvider)
 // Hardhat Account #3
 const USER_1 = new ethers.Wallet("0x7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6").connect(localhostProvider)
 // Hardhat Account #19
@@ -50,7 +50,7 @@ async function setupFastPriceFeed() {
     fastPriceEvents.address, // _fastPriceEvents
     TOKEN_MANAGER.address // _tokenManager
   ])
-  await fastPriceFeed.initialize(2, [], [UPDATER_1.address])
+  await fastPriceFeed.initialize(2, [], [KEEPER_1.address])
   await fastPriceFeed.setMaxTimeDeviation(1000)
   await fastPriceFeed.connect(TOKEN_MANAGER).setPriceDataInterval(1)
   await fastPriceEvents.setIsPriceFeed(fastPriceFeed.address, true)
@@ -64,9 +64,9 @@ async function deployAndMintTokens() {
   return {weth: weth, atom: atom}
 }
 
-async function addFastPriceFeedUpdaters(fastPriceFeed, updatersAddresses) {
-  for (const updater of updatersAddresses) {
-    await fastPriceFeed.setUpdater(updater, true)
+async function addFastPriceFeedKeepers(fastPriceFeed, keeperssAddresses) {
+  for (const keeper of keeperssAddresses) {
+    await fastPriceFeed.setUpdater(keeper, true)
   }
 }
 
@@ -185,9 +185,9 @@ async function configureVault(vault, router, usdg, weth, atom, fastPriceFeed, po
 
 module.exports = {
   deployAll,
-  addFastPriceFeedUpdaters,
-  UPDATER_1,
-  UPDATER_2,
+  addFastPriceFeedKeepers,
+  KEEPER_1,
+  KEEPER_2,
   USER_1,
   POSITION_ROUTER_EXECUTION_FEE,
   TOKEN_DECIMALS

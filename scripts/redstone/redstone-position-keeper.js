@@ -1,9 +1,9 @@
 const {updatePriceBitsAndOptionallyExecute} = require("./keeper-common");
-const {UPDATER_1} = require("./setup-common");
+const {KEEPER_1} = require("./setup-common");
 const {contractAt} = require("../shared/helpers");
 
 const PROVIDER_URL = "http://localhost:8545"
-const UPDATER_PRIVATE_KEY = UPDATER_1.privateKey
+const KEEPER_PRIVATE_KEY = KEEPER_1.privateKey
 
 const WETH_CONTRACT_ADDRESS = process.env.WETH_CONTRACT_ADDRESS
 const ATOM_CONTRACT_ADDRESS = process.env.ATOM_CONTRACT_ADDRESS
@@ -15,17 +15,17 @@ const POSITION_ROUTER_CONTRACT_ADDRESS = process.env.POSITION_ROUTER_CONTRACT_AD
 const POSITION_UTILS_ADDRESS = process.env.POSITION_UTILS_ADDRESS
 
 const provider = new ethers.providers.JsonRpcProvider(PROVIDER_URL)
-const updater = new ethers.Wallet(UPDATER_PRIVATE_KEY).connect(provider)
+const keeper = new ethers.Wallet(KEEPER_PRIVATE_KEY).connect(provider)
 
 async function main() {
   const fastPriceFeed = await contractAt("FastPriceFeed", FAST_PRICE_FEED_CONTRACT_ADDRESS)
-  const positionRouter = await contractAt("PositionRouter", POSITION_ROUTER_CONTRACT_ADDRESS, updater, {
+  const positionRouter = await contractAt("PositionRouter", POSITION_ROUTER_CONTRACT_ADDRESS, keeper, {
     libraries: {
       PositionUtils: POSITION_UTILS_ADDRESS
     }
   })
 
-  await updatePriceBitsAndOptionallyExecute(TOKENS, fastPriceFeed, positionRouter, updater)
+  await updatePriceBitsAndOptionallyExecute(TOKENS, fastPriceFeed, positionRouter, keeper)
 }
 
 main()

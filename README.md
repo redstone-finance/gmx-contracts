@@ -18,3 +18,11 @@ Add `env.json` and set variables required by hardhat eg. `env-template.json`
 
 ## Run Tests
 `npx hardhat test`
+
+## Run Redstone scripts
+Makefile installed is recommended for simplicity
+- Setup local node e.g. by `make node`
+
+Then in another terminal tab
+- To run demo script - `make demo`
+- To run keeper script - `make deploy`, copy-paste export outputs and run `make keeper`

@@ -31,7 +31,7 @@ async function setPriceBitsAndOptionallyExecute(priceBits, fastPriceFeed, positi
   console.log(`Position queue: ${JSON.stringify(positionQueue)}`)
   const timestamp = Math.floor(Date.now() / 1000)
   if(positionQueue.increaseKeysLength - positionQueue.increaseKeyStart > 0 || positionQueue.decreaseKeysLength - positionQueue.decreaseKeyStart> 0) {
-    console.log(`Updating price bits: ${priceBits} and executing`)
+    console.log(`Updating price bits: ${priceBits} and executing positions`)
     const endIndexForIncreasePositions = positionQueue.increaseKeysLength
     const endIndexForDecreasePositions = positionQueue.decreaseKeysLength
     const tx = await fastPriceFeed.connect(keeper).setPricesWithBitsAndExecute(

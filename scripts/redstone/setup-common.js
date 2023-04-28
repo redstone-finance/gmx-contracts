@@ -46,7 +46,7 @@ async function setupFastPriceFeed() {
     fastPriceEvents.address, // _fastPriceEvents
     TOKEN_MANAGER.address // _tokenManager
   ])
-  await fastPriceFeed.initialize(2, [], [UPDATER_1.address, UPDATER_2.address])
+  await fastPriceFeed.initialize(2, [], [UPDATER_1.address])
   await fastPriceFeed.setMaxTimeDeviation(1000)
   await fastPriceFeed.connect(TOKEN_MANAGER).setPriceDataInterval(1)
   await fastPriceEvents.setIsPriceFeed(fastPriceFeed.address, true)

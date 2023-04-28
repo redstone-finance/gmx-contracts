@@ -24,7 +24,14 @@ async function deployAll() {
   const {weth, atom} = await deployAndMintTokens()
   const {positionRouter, router, vault, usdg} = await setupPositionRouter(fastPriceFeed, weth, atom)
   await configureVault(vault, router, usdg, weth, atom, fastPriceFeed, positionRouter)
-  return {positionRouter: positionRouter, router: router, fastPriceFeed: fastPriceFeed, vault: vault, weth: weth, atom: atom}
+  return {
+    positionRouter: positionRouter,
+    router: router,
+    fastPriceFeed: fastPriceFeed,
+    vault: vault,
+    weth: weth,
+    atom: atom
+  }
 }
 
 async function setupFastPriceFeed() {
@@ -120,9 +127,10 @@ async function configureVault(vault, router, usdg, weth, atom, fastPriceFeed, po
     false // _isStrictStable
   )
 
-  //TODO: set by redstone value
-  await wethPriceFeed.setLatestAnswer(toChainlinkPrice(1920.711))
-  await atomPriceFeed.setLatestAnswer(toChainlinkPrice(11.665))
+  /* set some example feeds for Chainlink as it's not our main concern here
+     but it's required to open position */
+  await wethPriceFeed.setLatestAnswer(toChainlinkPrice(1000))
+  await atomPriceFeed.setLatestAnswer(toChainlinkPrice(5))
 
   await vault.setTokenConfig(
     weth.address, // _token,
@@ -139,7 +147,7 @@ async function configureVault(vault, router, usdg, weth, atom, fastPriceFeed, po
     18, // _tokenDecimals,
     10000, // _tokenWeight,
     75, // _minProfitBps,
-    0 , // _maxUsdgAmount,
+    0, // _maxUsdgAmount,
     false, // _isStable,
     true // _isShortable
   )

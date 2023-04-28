@@ -1,10 +1,8 @@
 const redstone = require("redstone-api");
 const {getPriceBits} = require("../../test/shared/utilities");
 
-const SYMBOLS_WITH_PRECISIONS = [{symbol: "ETH", precision: 1000}, {symbol: "ATOM", precision: 1000}]
-
-const MAX_INCREASE_POSITIONS = 2
-const MAX_DECREASE_POSITIONS = 2
+const MAX_INCREASE_POSITIONS = 8
+const MAX_DECREASE_POSITIONS = 8
 
 async function updatePriceBitsAndExecute(symbolsWithPrecisions, fastPriceFeed, positionRouter, updater) {
   const priceBits = await fetchPriceBits(symbolsWithPrecisions)
@@ -22,11 +20,11 @@ async function fetchPriceBits(symbolsWithPrecisions) {
 }
 
 async function setPriceBitsAndExecute(priceBits, fastPriceFeed, positionRouter, updater) {
-  console.log(`Updating price bits: ${priceBits}`)
+  console.log(`Updating price bits: ${priceBits} and executing`)
   const timestamp = Math.floor(Date.now() / 1000)
   //TODO: fetch
   const endIndexForIncreasePositions = 1
-  const endIndexForDecreasePositions = 2
+  const endIndexForDecreasePositions = 1
   const tx = await fastPriceFeed.connect(updater).setPricesWithBitsAndExecute(
     positionRouter.address,
     priceBits, // _priceBits
@@ -45,5 +43,4 @@ function normalizePrice(price, precision) {
 
 module.exports = {
   updatePriceBitsAndExecute,
-  SYMBOLS_WITH_PRECISIONS
 }

@@ -1,4 +1,4 @@
-const {deployAll} = require("./deploy-common");
+const {deployAll} = require("./setup-common");
 
 async function main() {
   await deployAll()

@@ -6,7 +6,7 @@ deploy:
 demo:
 	npx hardhat run scripts/redstone/redstone-keeper-demo.js --network localhost
 
-node:`
+node:
 	npx hardhat node
 
 test:

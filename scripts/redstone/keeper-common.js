@@ -10,7 +10,7 @@ async function updatePriceBitsAndExecute(symbolsWithPrecisions, fastPriceFeed, p
 }
 
 async function fetchPriceBits(symbolsWithPrecisions) {
-  console.log(`Fetching prices: ${JSON.stringify(symbolsWithPrecisions)}`)
+  console.log("Fetching prices")
   const symbols = symbolsWithPrecisions.map(({symbol}) => symbol)
   const prices = await redstone.query().symbols(symbols).latest().exec({
     provider: "redstone"

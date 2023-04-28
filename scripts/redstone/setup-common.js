@@ -7,8 +7,6 @@ const POSITION_ROUTER_EXECUTION_FEE = 4000
 
 const localhostProvider = new ethers.providers.JsonRpcProvider("http://localhost:8545")
 
-//TODO: change updater_1 to 2nd (as its deployer)
-
 // Hardhat Account #0
 const DEPLOYER = new ethers.Wallet("0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80").connect(localhostProvider)
 // Hardhat Account #1
@@ -24,7 +22,8 @@ const TOKEN_MANAGER = new ethers.Wallet("0xdf57089febbacf7ba0bc227dafbffa9fc08a9
 async function deployAll() {
   const {fastPriceFeed} = await setupFastPriceFeed()
   const {weth, atom} = await deployAndMintTokens()
-  const {positionRouter, router, vault} = await setupPositionRouter(fastPriceFeed, weth, atom)
+  const {positionRouter, router, vault, usdg} = await setupPositionRouter(fastPriceFeed, weth, atom)
+  await configureVault(vault, router, usdg, weth, atom, fastPriceFeed, positionRouter)
   return {positionRouter: positionRouter, router: router, fastPriceFeed: fastPriceFeed, vault: vault, weth: weth, atom: atom}
 }
 
@@ -64,10 +63,8 @@ async function addFastPriceFeedTokens(fastPriceFeed, tokens) {
   await fastPriceFeed.setTokens(addresses, precisions)
 }
 
-async function setupPositionRouter(fastPriceFeed, weth, atom) {
+async function setupPositionRouter(fastPriceFeed, weth) {
   const vault = await deployContract("Vault", [])
-  //TODO: add tokens to vault
-  //TODO: add sth to vault to be able to start position
   const usdg = await deployContract("USDG", [vault.address])
   const router = await deployContract("Router", [vault.address, usdg.address, weth.address])
   const shortsTracker = await deployContract("ShortsTracker", [vault.address])
@@ -91,9 +88,10 @@ async function setupPositionRouter(fastPriceFeed, weth, atom) {
   await positionRouter.setDelayValues(0, 0, 100)
   await router.addPlugin(positionRouter.address)
   await shortsTracker.setHandler(positionRouter.address, true)
+  return {positionRouter: positionRouter, router: router, vault: vault, usdg: usdg}
+}
 
-  //TODO: extract to function
-
+async function configureVault(vault, router, usdg, weth, atom, fastPriceFeed, positionRouter) {
   const vaultPriceFeed = await deployContract("VaultPriceFeed", [])
 
   await vault.initialize(
@@ -170,8 +168,6 @@ async function setupPositionRouter(fastPriceFeed, weth, atom) {
 
   await timelock.setContractHandler(positionRouter.address, true)
   await timelock.setShouldToggleIsLeverageEnabled(true)
-
-  return {positionRouter: positionRouter, router: router, vault: vault}
 }
 
 module.exports = {

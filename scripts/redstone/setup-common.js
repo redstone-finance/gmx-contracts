@@ -64,7 +64,7 @@ async function deployAndMintTokens() {
   return {weth: weth, atom: atom}
 }
 
-async function addFastPriceFeedKeepers(fastPriceFeed, keeperssAddresses) {
+async function registerPriceFeedKeepers(fastPriceFeed, keeperssAddresses) {
   for (const keeper of keeperssAddresses) {
     await fastPriceFeed.setUpdater(keeper, true)
   }
@@ -185,7 +185,7 @@ async function configureVault(vault, router, usdg, weth, atom, fastPriceFeed, po
 
 module.exports = {
   deployAll,
-  addFastPriceFeedKeepers,
+  registerPriceFeedKeepers,
   KEEPER_1,
   KEEPER_2,
   USER_1,

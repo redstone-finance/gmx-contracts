@@ -2,6 +2,7 @@ const {deployContract} = require("../shared/helpers");
 const {expandDecimals} = require("../../test/shared/utilities");
 const {toUsd} = require("../../test/shared/units");
 const {toChainlinkPrice} = require("../../test/shared/chainlink");
+const {fetchPrices} = require("./keeper-common");
 
 const POSITION_ROUTER_EXECUTION_FEE = 4000
 
@@ -127,10 +128,9 @@ async function configureVault(vault, router, usdg, weth, atom, fastPriceFeed, po
     false // _isStrictStable
   )
 
-  /* set some example feeds for Chainlink as it's not our main concern here
-     but it's required to open position */
-  await wethPriceFeed.setLatestAnswer(toChainlinkPrice(1000))
-  await atomPriceFeed.setLatestAnswer(toChainlinkPrice(5))
+  const prices = await fetchPrices(["ETH", "ATOM"])
+  await wethPriceFeed.setLatestAnswer(toChainlinkPrice(prices["ETH"].value))
+  await atomPriceFeed.setLatestAnswer(toChainlinkPrice(prices["ATOM"].value))
 
   await vault.setTokenConfig(
     weth.address, // _token,

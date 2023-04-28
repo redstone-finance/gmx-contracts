@@ -1,21 +1,26 @@
 const redstone = require("redstone-api");
 const {getPriceBits} = require("../../test/shared/utilities");
 
-const MAX_INCREASE_POSITIONS = 8
-const MAX_DECREASE_POSITIONS = 8
+const MAX_INCREASE_POSITIONS = 5
+const MAX_DECREASE_POSITIONS = 5
 
 async function updatePriceBitsAndExecute(symbolsWithPrecisions, fastPriceFeed, positionRouter, updater) {
   const priceBits = await fetchPriceBits(symbolsWithPrecisions)
   await setPriceBitsAndExecute(priceBits, fastPriceFeed, positionRouter, updater)
 }
 
-async function fetchPriceBits(symbolsWithPrecisions) {
-  console.log("Fetching prices")
-  const symbols = symbolsWithPrecisions.map(({symbol}) => symbol)
+async function fetchPrices(symbols) {
   const prices = await redstone.query().symbols(symbols).latest().exec({
     provider: "redstone"
   })
-  console.log(`Prices from Redstone: ${JSON.stringify(symbolsWithPrecisions.map(({symbol}) => {return {symbol: symbol, price: prices[symbol].value}}))}`)
+  console.log(`Prices from Redstone: ${JSON.stringify(symbols.map((symbol) => {return {symbol: symbol, price: prices[symbol].value}}))}`)
+  return prices
+}
+
+async function fetchPriceBits(symbolsWithPrecisions) {
+  console.log("Fetching prices")
+  const symbols = symbolsWithPrecisions.map(({symbol}) => symbol)
+  const prices = await fetchPrices(symbols)
   const normalizedPrices = symbolsWithPrecisions.map(({symbol, precision}) => normalizePrice(prices[symbol], precision))
   return getPriceBits(normalizedPrices)
 }
@@ -44,4 +49,5 @@ function normalizePrice(price, precision) {
 
 module.exports = {
   updatePriceBitsAndExecute,
+  fetchPrices
 }

@@ -6,6 +6,9 @@ deploy:
 demo:
 	npx hardhat run scripts/redstone/redstone-keeper-demo.js --network localhost
 
+keeper:
+		npx hardhat run scripts/redstone/redstone-position-keeper.js --network localhost
+
 node:
 	npx hardhat node
 

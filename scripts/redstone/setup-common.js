@@ -23,7 +23,7 @@ const TOKEN_MANAGER = new ethers.Wallet("0xdf57089febbacf7ba0bc227dafbffa9fc08a9
 async function deployAll() {
   const {fastPriceFeed} = await setupFastPriceFeed()
   const {weth, atom} = await deployAndMintTokens()
-  const {positionRouter, router, vault, usdg} = await setupPositionRouter(fastPriceFeed, weth, atom)
+  const {positionRouter, router, vault, usdg, positionUtils} = await setupPositionRouter(fastPriceFeed, weth, atom)
   await configureVault(vault, router, usdg, weth, atom, fastPriceFeed, positionRouter)
   return {
     positionRouter: positionRouter,
@@ -31,7 +31,8 @@ async function deployAll() {
     fastPriceFeed: fastPriceFeed,
     vault: vault,
     weth: weth,
-    atom: atom
+    atom: atom,
+    positionUtils: positionUtils
   }
 }
 
@@ -96,7 +97,7 @@ async function setupPositionRouter(fastPriceFeed, weth) {
   await positionRouter.setDelayValues(0, 0, 100)
   await router.addPlugin(positionRouter.address)
   await shortsTracker.setHandler(positionRouter.address, true)
-  return {positionRouter: positionRouter, router: router, vault: vault, usdg: usdg}
+  return {positionRouter: positionRouter, router: router, vault: vault, usdg: usdg, positionUtils: positionUtils}
 }
 
 async function configureVault(vault, router, usdg, weth, atom, fastPriceFeed, positionRouter) {

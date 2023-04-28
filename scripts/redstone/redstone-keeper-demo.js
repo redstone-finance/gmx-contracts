@@ -1,10 +1,12 @@
 const {deployAll, UPDATER_1, UPDATER_2, addFastPriceFeedUpdaters, USER_1, POSITION_ROUTER_EXECUTION_FEE,
-  addFastPriceFeedTokens
+  addFastPriceFeedTokens, TOKEN_DECIMALS
 } = require("./setup-common");
 const {updatePriceBitsAndOptionallyExecute} = require("./keeper-common");
 const {expandDecimals} = require("../../test/shared/utilities");
 const {toUsd} = require("../../test/shared/units");
 const {sleep} = require("../shared/helpers");
+
+const GMX_PRICE_PRECISION=30
 
 async function main() {
   const {positionRouter, router, fastPriceFeed, vault, weth, atom} = await deployAll()
@@ -33,12 +35,12 @@ async function openPosition(positionRouter, router, collateralToken, indexToken)
   console.log("Increasing position")
 
   await router.connect(USER_1).approvePlugin(positionRouter.address)
-  await collateralToken.connect(USER_1).approve(router.address, expandDecimals(1, 18))
+  await collateralToken.connect(USER_1).approve(router.address, expandDecimals(1, TOKEN_DECIMALS))
 
   const tx = await positionRouter.connect(USER_1).createIncreasePosition(
     [collateralToken.address], // _path
     indexToken.address, // _indexToken
-    expandDecimals(1, 18), // _amountIn
+    expandDecimals(1, TOKEN_DECIMALS), // _amountIn
     0, // _minOut
     toUsd(6000), // _sizeDelta
     true, // _isLong
@@ -53,7 +55,7 @@ async function openPosition(positionRouter, router, collateralToken, indexToken)
 
 async function checkPricesInFeed(fastPriceFeed, tokens) {
   return await Promise.all(tokens.map(async token => {
-    return {token: token.symbol, price: ethers.utils.formatUnits(await fastPriceFeed.prices(token.address), 30)}
+    return {token: token.symbol, price: ethers.utils.formatUnits(await fastPriceFeed.prices(token.address), GMX_PRICE_PRECISION)}
   }))
 }
 
@@ -65,14 +67,14 @@ async function getPosition(vault, token) {
     true // _isLong
   )
   return {
-    size: ethers.utils.formatUnits(position[0], 30),
-    collateral: ethers.utils.formatUnits(position[1], 30),
-    averagePrice: ethers.utils.formatUnits(position[2], 30),
-    entryFundingRate: ethers.utils.formatUnits(position[3], 30),
-    reserveAmount: ethers.utils.formatUnits(position[4], 30),
-    realisedPnl: ethers.utils.formatUnits(position[5], 30),
+    size: ethers.utils.formatUnits(position[0], GMX_PRICE_PRECISION),
+    collateral: ethers.utils.formatUnits(position[1], GMX_PRICE_PRECISION),
+    averagePrice: ethers.utils.formatUnits(position[2], GMX_PRICE_PRECISION),
+    entryFundingRate: ethers.utils.formatUnits(position[3], GMX_PRICE_PRECISION),
+    reserveAmount: ethers.utils.formatUnits(position[4], GMX_PRICE_PRECISION),
+    realisedPnl: ethers.utils.formatUnits(position[5], GMX_PRICE_PRECISION),
     hasProfit: position[6],
-    lastIncreasedTime: ethers.utils.formatUnits(position[7], 30)
+    lastIncreasedTime: ethers.utils.formatUnits(position[7], GMX_PRICE_PRECISION)
   }
 }
 

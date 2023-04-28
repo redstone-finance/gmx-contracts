@@ -5,6 +5,7 @@ const {toChainlinkPrice} = require("../../test/shared/chainlink");
 const {fetchPrices} = require("./keeper-common");
 
 const POSITION_ROUTER_EXECUTION_FEE = 4000
+const TOKEN_DECIMALS = 18
 
 const localhostProvider = new ethers.providers.JsonRpcProvider("http://localhost:8545")
 
@@ -55,7 +56,7 @@ async function setupFastPriceFeed() {
 
 async function deployAndMintTokens() {
   const weth = await deployContract("Token", [])
-  await weth.mint(USER_1.address, expandDecimals(10, 18))
+  await weth.mint(USER_1.address, expandDecimals(10, TOKEN_DECIMALS))
   const atom = await deployContract("Token", [])
   return {weth: weth, atom: atom}
 }
@@ -135,7 +136,7 @@ async function configureVault(vault, router, usdg, weth, atom, fastPriceFeed, po
 
   await vault.setTokenConfig(
     weth.address, // _token,
-    18, // _tokenDecimals,
+    TOKEN_DECIMALS, // _tokenDecimals,
     10000, // _tokenWeight,
     75, // _minProfitBps,
     0, // _maxUsdgAmount,
@@ -145,7 +146,7 @@ async function configureVault(vault, router, usdg, weth, atom, fastPriceFeed, po
 
   await vault.setTokenConfig(
     atom.address, // _token,
-    18, // _tokenDecimals,
+    TOKEN_DECIMALS, // _tokenDecimals,
     10000, // _tokenWeight,
     75, // _minProfitBps,
     0, // _maxUsdgAmount,
@@ -156,7 +157,7 @@ async function configureVault(vault, router, usdg, weth, atom, fastPriceFeed, po
   const vaultUtils = await deployContract("VaultUtils", [vault.address])
   await vault.setVaultUtils(vaultUtils.address)
 
-  await weth.mint(vault.address, expandDecimals(30, 18))
+  await weth.mint(vault.address, expandDecimals(30, TOKEN_DECIMALS))
   await vault.buyUSDG(weth.address, USER_1.address)
 
   await fastPriceFeed.setVaultPriceFeed(vaultPriceFeed.address)
@@ -169,7 +170,7 @@ async function configureVault(vault, router, usdg, weth, atom, fastPriceFeed, po
     ethers.constants.AddressZero, // _mintReceiver
     ethers.constants.AddressZero, // _glpManager
     ethers.constants.AddressZero, // _rewardRouter
-    expandDecimals(1000, 18), // _maxTokenSupply
+    expandDecimals(1000, TOKEN_DECIMALS), // _maxTokenSupply
     10, // marginFeeBasisPoints 0.1%
     500, // maxMarginFeeBasisPoints 5%
   ])
@@ -186,5 +187,6 @@ module.exports = {
   UPDATER_1,
   UPDATER_2,
   USER_1,
-  POSITION_ROUTER_EXECUTION_FEE
+  POSITION_ROUTER_EXECUTION_FEE,
+  TOKEN_DECIMALS
 }

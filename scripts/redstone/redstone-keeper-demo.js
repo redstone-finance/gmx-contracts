@@ -4,20 +4,29 @@ const {deployAll, UPDATER_1, UPDATER_2, addFastPriceFeedUpdaters, USER_1, POSITI
 const {updatePriceBitsAndExecute} = require("./keeper-common");
 const {expandDecimals} = require("../../test/shared/utilities");
 const {toUsd} = require("../../test/shared/units");
+const {sleep} = require("../shared/helpers");
 
 async function main() {
   const {positionRouter, router, fastPriceFeed, vault, weth, atom} = await deployAll()
-  const tokens = [{symbol: "ETH", precision: 1000, address: weth.address}, {symbol: "ATOM", precision: 1000, address: atom.address}]
+  const tokens = [{symbol: "ETH", precision: 100_000, address: weth.address}, {symbol: "ATOM", precision: 100_000, address: atom.address}]
   await addFastPriceFeedUpdaters(fastPriceFeed, [UPDATER_1.address, UPDATER_2.address])
   await addFastPriceFeedTokens(fastPriceFeed, tokens)
   await openPosition(positionRouter, router, weth, weth)
 
-  await updatePriceBitsAndExecute(tokens, fastPriceFeed, positionRouter, UPDATER_2)
+  await updatePriceBitsAndExecute(tokens, fastPriceFeed, positionRouter, UPDATER_1)
 
-  const pricesInFeed = await checkPricesInFeed(fastPriceFeed, tokens)
-  console.log(`Prices in feed ${JSON.stringify(pricesInFeed)}`)
-
+  const pricesInFeed1 = await checkPricesInFeed(fastPriceFeed, tokens)
+  console.log(`Prices in feed ${JSON.stringify(pricesInFeed1)}`)
   console.log(`GMX Position: ${JSON.stringify(await getPosition(vault, weth))}`)
+
+  await sleep(60_000) // wait for price noticeably change
+
+  await updatePriceBitsAndExecute(tokens, fastPriceFeed, positionRouter, UPDATER_2)
+  const pricesInFeed2 = await checkPricesInFeed(fastPriceFeed, tokens)
+  console.log(`Prices in feed ${JSON.stringify(pricesInFeed2)}`)
+
+  console.log("Prices in feed changes")
+  pricesInFeed1.forEach((priceInFeed1, index) => console.log(`${priceInFeed1.token}: ${priceInFeed1.price} -> ${pricesInFeed2[index].price}`))
 }
 
 async function openPosition(positionRouter, router, collateralToken, indexToken) {

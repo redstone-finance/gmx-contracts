@@ -15,6 +15,7 @@ async function fetchPriceBits(symbolsWithPrecisions) {
   const prices = await redstone.query().symbols(symbols).latest().exec({
     provider: "redstone"
   })
+  console.log(`Prices from Redstone: ${JSON.stringify(symbolsWithPrecisions.map(({symbol}) => {return {symbol: symbol, price: prices[symbol].value}}))}`)
   const normalizedPrices = symbolsWithPrecisions.map(({symbol, precision}) => normalizePrice(prices[symbol], precision))
   return getPriceBits(normalizedPrices)
 }

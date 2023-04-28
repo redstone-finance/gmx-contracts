@@ -18,7 +18,7 @@ const UPDATER_2 = new ethers.Wallet("0x5de4111afa1a4b94908f83103eb1f1706367c2e68
 // Hardhat Account #3
 const USER_1 = new ethers.Wallet("0x7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6").connect(localhostProvider)
 // Hardhat Account #19
-const TOKEN_MANAGER = new ethers.Wallet("0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199")
+const TOKEN_MANAGER = new ethers.Wallet("0xdf57089febbacf7ba0bc227dafbffa9fc08a93fdc68e1e42411a14efcf23656e").connect(localhostProvider)
 
 
 async function deployAll() {
@@ -33,13 +33,14 @@ async function setupFastPriceFeed() {
   const fastPriceFeed = await deployContract("FastPriceFeed", [
     5 * 60, // _priceDuration
     120 * 60, // _maxPriceUpdateDelay
-    2, // _minBlockInterval
+    1, // _minBlockInterval
     250, // _maxDeviationBasisPoints
     fastPriceEvents.address, // _fastPriceEvents
     TOKEN_MANAGER.address // _tokenManager
   ])
   await fastPriceFeed.initialize(2, [], [UPDATER_1.address, UPDATER_2.address])
   await fastPriceFeed.setMaxTimeDeviation(1000)
+  await fastPriceFeed.connect(TOKEN_MANAGER).setPriceDataInterval(1)
   await fastPriceEvents.setIsPriceFeed(fastPriceFeed.address, true)
   return {fastPriceFeed: fastPriceFeed}
 }

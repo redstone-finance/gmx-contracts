@@ -102,34 +102,34 @@ positionRouter.on(
     account,
     path,
     indexToken,
-    amountIn,
-    minOut,
+    collateralDelta,
     sizeDelta,
     isLong,
+    receiver,
     acceptablePrice,
+    minOut,
     executionFee,
     index,
     queueIndex,
     blockNumber,
-    blockTime,
-    gasPrice
+    blockTime
   ) => {
     logger.info(
       `CreateDecreasePosition: ${JSON.stringify({
         account,
         path,
         indexToken,
-        amountIn,
-        minOut,
+        collateralDelta,
         sizeDelta,
         isLong,
+        receiver,
         acceptablePrice,
+        minOut,
         executionFee,
         index,
         queueIndex,
         blockNumber,
         blockTime,
-        gasPrice,
       })}`
     );
 

@@ -1,19 +1,19 @@
 const express = require("express");
 const ethers = require("ethers");
+require("dotenv").config();
 
 const logger = require("./logger");
 const { updatePriceBitsAndOptionallyExecute } = require("./utils");
+const KEEPER_DEPLOY_KEY = process.env.KEEPER_DEPLOY_KEY;
+const FAST_PRICE_FEED_ADDRESS = process.env.FAST_PRICE_FEED_ADDRESS;
+const POSITION_ROUTER_ADDRESS = process.env.POSITION_ROUTER_ADDRESS;
 
 const {
-  FAST_PRICE_FEED_ADDRESS,
-  POSITION_ROUTER_ADDRESS,
-  KEEPER_DEPLOY_KEY,
   ETH_ADDRESS,
   CANTO_ADDRESS,
   ATOM_ADDRESS,
   PROVIDER_URL,
 } = require("./config");
-
 
 const provider = new ethers.providers.JsonRpcProvider(PROVIDER_URL);
 const keeper = new ethers.Wallet(KEEPER_DEPLOY_KEY, provider);

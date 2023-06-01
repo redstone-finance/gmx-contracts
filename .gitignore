@@ -14,6 +14,7 @@ data/contractList
 flattened
 distribution-data*.json
 **/.DS_Store
+.env
 
 #Hardhat files
 cache

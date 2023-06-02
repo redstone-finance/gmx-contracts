@@ -7,6 +7,7 @@ const { updatePriceBitsAndOptionallyExecute } = require("./utils");
 const KEEPER_DEPLOY_KEY = process.env.KEEPER_DEPLOY_KEY;
 const FAST_PRICE_FEED_ADDRESS = process.env.FAST_PRICE_FEED_ADDRESS;
 const POSITION_ROUTER_ADDRESS = process.env.POSITION_ROUTER_ADDRESS;
+const PING_ADDRESS = process.env.PING_ADDRESS;
 
 const {
   ETH_ADDRESS,
@@ -46,6 +47,22 @@ const tokens = [
     address: ATOM_ADDRESS,
   },
 ];
+
+function pingAddressHandler() {
+  fetch(PING_ADDRESS)
+    .then((response) => {
+      if (response.ok) {
+        logger.info("Ping successful");
+      } else {
+        logger.error("Ping failed");
+      }
+    })
+    .catch((error) => {
+      logger.error("Error occurred during ping:", error);
+    });
+}
+
+setInterval(pingAddressHandler, 60 * 60 * 1000);
 
 const app = express();
 const port = 3000;

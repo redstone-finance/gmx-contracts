@@ -87,12 +87,16 @@ positionRouter.on(
       })}`
     );
 
-    updatePriceBitsAndOptionallyExecute(
-      tokens,
-      fastPriceFeed,
-      positionRouter,
-      keeper
-    );
+    try {
+      updatePriceBitsAndOptionallyExecute(
+        tokens,
+        fastPriceFeed,
+        positionRouter,
+        keeper
+      );
+    } catch (e) {
+      logger.error(e);
+    }
   }
 );
 
@@ -133,12 +137,16 @@ positionRouter.on(
       })}`
     );
 
-    updatePriceBitsAndOptionallyExecute(
-      tokens,
-      fastPriceFeed,
-      positionRouter,
-      keeper
-    );
+    try {
+      updatePriceBitsAndOptionallyExecute(
+        tokens,
+        fastPriceFeed,
+        positionRouter,
+        keeper
+      );
+    } catch (e) {
+      logger.error(e);
+    }
   }
 );
 

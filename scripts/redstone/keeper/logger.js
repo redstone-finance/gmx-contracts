@@ -5,7 +5,12 @@ const logDir = path.join(__dirname, "logs");
 
 const logger = winston.createLogger({
     level: "info",
-    format: winston.format.json(),
+    format: winston.format.combine(
+        winston.format.timestamp({
+            format: 'YYYY-MM-DD HH:mm:ss'
+        }),
+        winston.format.json()
+    ),
     defaultMeta: { service: "redstone-keeper" },
     transports: [
         new winston.transports.File({ filename: path.join(logDir, "error.log"), level: "error" }),

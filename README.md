@@ -25,4 +25,3 @@ Makefile installed is recommended for simplicity
 
 Then in another terminal tab
 - To run demo script - `make demo`
-- To run keeper script - `make deploy`, copy-paste export outputs and run `make keeper`

@@ -7,14 +7,10 @@ const {fetchPrices} = require("./keeper-common");
 const POSITION_ROUTER_EXECUTION_FEE = 4000
 const TOKEN_DECIMALS = 18
 
-const localhostProvider = new ethers.providers.JsonRpcProvider("http://localhost:8545")
+const localhostProvider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545")
 
 // Hardhat Account #0
 const DEPLOYER = new ethers.Wallet("0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80").connect(localhostProvider)
-// Hardhat Account #1
-const KEEPER_1 = new ethers.Wallet("0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d").connect(localhostProvider)
-// Hardhat Account #2
-const KEEPER_2 = new ethers.Wallet("0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a").connect(localhostProvider)
 // Hardhat Account #3
 const USER_1 = new ethers.Wallet("0x7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6").connect(localhostProvider)
 // Hardhat Account #19
@@ -23,12 +19,14 @@ const TOKEN_MANAGER = new ethers.Wallet("0xdf57089febbacf7ba0bc227dafbffa9fc08a9
 
 async function deployAll() {
   const {fastPriceFeed} = await setupFastPriceFeed()
+  const redstoneKeeper = await deployContract("RedstoneKeeper", [fastPriceFeed.address])
   const {weth, atom} = await deployAndMintTokens()
   const {positionRouter, router, vault, usdg, positionUtils} = await setupPositionRouter(fastPriceFeed, weth, atom)
   await configureVault(vault, router, usdg, weth, atom, fastPriceFeed, positionRouter)
   const tokens = [{symbol: "ETH", precision: 100_000, address: weth.address}, {symbol: "ATOM", precision: 100_000, address: atom.address}]
   await addFastPriceFeedTokens(fastPriceFeed, tokens)
   return {
+    redstoneKeeper: redstoneKeeper,
     positionRouter: positionRouter,
     router: router,
     fastPriceFeed: fastPriceFeed,
@@ -50,7 +48,7 @@ async function setupFastPriceFeed() {
     fastPriceEvents.address, // _fastPriceEvents
     TOKEN_MANAGER.address // _tokenManager
   ])
-  await fastPriceFeed.initialize(2, [], [KEEPER_1.address])
+  await fastPriceFeed.initialize(2, [], [])
   await fastPriceFeed.setMaxTimeDeviation(1000)
   await fastPriceFeed.connect(TOKEN_MANAGER).setPriceDataInterval(1)
   await fastPriceEvents.setIsPriceFeed(fastPriceFeed.address, true)
@@ -186,8 +184,6 @@ async function configureVault(vault, router, usdg, weth, atom, fastPriceFeed, po
 module.exports = {
   deployAll,
   registerPriceFeedKeepers,
-  KEEPER_1,
-  KEEPER_2,
   USER_1,
   POSITION_ROUTER_EXECUTION_FEE,
   TOKEN_DECIMALS

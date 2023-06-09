@@ -28,6 +28,8 @@
     "typechain": "^5.1.2"
   },
   "dependencies": {
+    "@openzeppelin/contracts": "^4.9.1",
+    "@redstone-finance/evm-connector": "^0.2.1",
     "@uniswap/sdk-core": "^3.0.1",
     "@uniswap/v3-sdk": "^3.8.2",
     "bn.js": "^5.2.0",

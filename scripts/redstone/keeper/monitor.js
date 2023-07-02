@@ -48,7 +48,7 @@ async function monitorBalance() {
     }
 
     if (balance < THRESHOLD && !notificationSent) {
-      sendMessage(`Warning: Balance is ${balance}!`);
+      sendMessage(`Warning: Balance for ${keeper.address} is ${balance}!`);
       notificationSent = true;
     }
   });

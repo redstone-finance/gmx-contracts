@@ -54,7 +54,7 @@ async function monitorBalance() {
   });
 }
 
-setInterval(monitorBalance, 60 * 60 * 5);
+setInterval(monitorBalance, 5 * 60 * 1000);
 
 const app = express();
 const port = 3001;

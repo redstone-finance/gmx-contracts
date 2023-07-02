@@ -1,5 +1,6 @@
 const express = require("express");
 const ethers = require("ethers");
+const fetch = require('node-fetch');
 require("dotenv").config();
 
 const logger = require("./logger");

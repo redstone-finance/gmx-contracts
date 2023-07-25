@@ -1,5 +1,4 @@
 const {
-  localhostProvider,
   deployAll,
   registerPriceFeedKeepers,
   USER_1,

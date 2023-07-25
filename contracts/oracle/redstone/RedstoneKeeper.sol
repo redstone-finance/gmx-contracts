@@ -13,28 +13,38 @@ interface IFastPriceFeed {
     ) external;
 
     function setPricesWithBits(uint256 _priceBits, uint256 _timestamp) external;
+
+    function tokens(uint256) external view returns (address);
 }
 
 contract RedstoneKeeper is MainDemoConsumerBase {
     address private immutable _fastPriceFeedAddress;
+    address private immutable _eth_address;
+    address private immutable _atom_address;
     uint256 public constant REDSTONE_PRECISION = 10 ** 8;
     uint256 public constant TOKEN_PRECISION = 10 ** 5;
     uint256 public constant PRECISON_DIFF =
         REDSTONE_PRECISION / TOKEN_PRECISION;
 
-    constructor(address fastPriceFeedAddress) {
+    constructor(
+        address fastPriceFeedAddress,
+        address eth_address,
+        address atom_address
+    ) {
         _fastPriceFeedAddress = fastPriceFeedAddress;
+        _eth_address = eth_address;
+        _atom_address = atom_address;
     }
 
     function setPricesWithBitsAndExecute(
         address positionRouter,
-        bytes32[] calldata dataFeedIds,
         uint256 timestamp,
         uint256 endIndexForIncreasePositions,
         uint256 endIndexForDecreasePositions,
         uint256 maxIncreasePositions,
         uint256 maxDecreasePositions
     ) external {
+        bytes32[] memory dataFeedIds = getIds();
         uint256[] memory values = getOracleNumericValuesFromTxMsg(dataFeedIds);
         uint256 priceBits = getPriceBits(values);
         IFastPriceFeed(_fastPriceFeedAddress).setPricesWithBitsAndExecute(
@@ -48,7 +58,8 @@ contract RedstoneKeeper is MainDemoConsumerBase {
         );
     }
 
-    function setPricesWithBits(bytes32[] calldata dataFeedIds, uint256 timestamp) external {
+    function setPricesWithBits(uint256 timestamp) external {
+        bytes32[] memory dataFeedIds = getIds();
         uint256[] memory values = getOracleNumericValuesFromTxMsg(dataFeedIds);
         uint256 priceBits = getPriceBits(values);
         IFastPriceFeed(_fastPriceFeedAddress).setPricesWithBits(
@@ -59,7 +70,7 @@ contract RedstoneKeeper is MainDemoConsumerBase {
 
     function getPriceBits(
         uint256[] memory prices
-    ) public view returns (uint256) {
+    ) public pure returns (uint256) {
         require(prices.length <= 8, "max prices.length exceeded");
 
         uint256 priceBits = 0;
@@ -88,5 +99,58 @@ contract RedstoneKeeper is MainDemoConsumerBase {
             truncated = truncated / 10;
         }
         return truncated;
+    }
+
+    function stringToBytes32(
+        string memory source
+    ) private pure returns (bytes32 result) {
+        assembly {
+            result := mload(add(source, 32))
+        }
+    }
+
+    function getIds() private view returns (bytes32[] memory) {
+        address[] memory tokens = getTokens();
+        uint256 length = tokens.length;
+
+        bytes32[] memory ids = new bytes32[](length);
+
+        for (uint256 i = 0; i < length; i++) {
+            if (tokens[i] == _eth_address) {
+                ids[i] = stringToBytes32("ETH");
+            } else if (tokens[i] == _atom_address) {
+                ids[i] = stringToBytes32("ATOM");
+            } else {
+                revert("Unknown token");
+            }
+        }
+        return ids;
+    }
+
+    function getTokens() private view returns (address[] memory) {
+        uint256 length = getTokensLength();
+        address[] memory tokens = new address[](length);
+
+        for (uint256 i = 0; i < length; i++) {
+            tokens[i] = IFastPriceFeed(_fastPriceFeedAddress).tokens(i);
+        }
+
+        return tokens;
+    }
+
+    function getTokensLength() private view returns (uint256) {
+        return 2;
+        // uint256 length = 0;
+
+        // while (true) {
+        //     try IFastPriceFeed(_fastPriceFeedAddress).tokens(length)
+        //     {
+        //         length++;
+        //     } catch (bytes memory) {
+        //         break;
+        //     }
+        // }
+
+        // return length;
     }
 }

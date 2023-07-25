@@ -39,7 +39,7 @@ async function setPriceBitsAndOptionallyExecute(
     console.log(`Updating price bits for ${symbols}:  and executing positions`);
     const endIndexForIncreasePositions = positionQueue.increaseKeysLength;
     const endIndexForDecreasePositions = positionQueue.decreaseKeysLength;
-    const wrappedRedstoneKeeper = await WrapperBuilder.wrap(
+    const wrappedRedstoneKeeper = WrapperBuilder.wrap(
       redstoneKeeper
     ).usingDataService({
       dataFeeds: symbols,
@@ -47,7 +47,6 @@ async function setPriceBitsAndOptionallyExecute(
 
     const tx = await wrappedRedstoneKeeper.setPricesWithBitsAndExecute(
       positionRouter.address, // _positionRouter
-      symbols.map(formatBytes32String), // _tokens
       timestamp, // _timestamp
       endIndexForIncreasePositions, // _endIndexForIncreasePositions
       endIndexForDecreasePositions, // _endIndexForDecreasePositions
@@ -63,7 +62,6 @@ async function setPriceBitsAndOptionallyExecute(
     });
     console.log(`Updating price bits for ${symbols}`);
     const tx = await wrappedRedstoneKeeper.setPricesWithBits(
-      symbols.map(formatBytes32String),
       timestamp
     );
     await tx.wait();

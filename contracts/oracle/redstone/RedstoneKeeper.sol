@@ -1,5 +1,5 @@
-import "@redstone-finance/evm-connector/contracts/data-services/MainDemoConsumerBase.sol";
 pragma solidity ^0.8.4;
+import "@redstone-finance/evm-connector/contracts/data-services/MainDemoConsumerBase.sol";
 
 interface IFastPriceFeed {
     function setPricesWithBitsAndExecute(
@@ -18,22 +18,15 @@ interface IFastPriceFeed {
 }
 
 contract RedstoneKeeper is MainDemoConsumerBase {
-    address private immutable _fastPriceFeedAddress;
-    address private immutable _eth_address;
-    address private immutable _atom_address;
+    address private _fastPriceFeedAddress = 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512;
+    
     uint256 public constant REDSTONE_PRECISION = 10 ** 8;
     uint256 public constant TOKEN_PRECISION = 10 ** 5;
     uint256 public constant PRECISON_DIFF =
         REDSTONE_PRECISION / TOKEN_PRECISION;
 
-    constructor(
-        address fastPriceFeedAddress,
-        address eth_address,
-        address atom_address
-    ) {
-        _fastPriceFeedAddress = fastPriceFeedAddress;
-        _eth_address = eth_address;
-        _atom_address = atom_address;
+    function getFastPriceFeedAddress() public view returns (address) {
+        return _fastPriceFeedAddress;
     }
 
     function setPricesWithBitsAndExecute(
@@ -109,48 +102,10 @@ contract RedstoneKeeper is MainDemoConsumerBase {
         }
     }
 
-    function getIds() private view returns (bytes32[] memory) {
-        address[] memory tokens = getTokens();
-        uint256 length = tokens.length;
-
-        bytes32[] memory ids = new bytes32[](length);
-
-        for (uint256 i = 0; i < length; i++) {
-            if (tokens[i] == _eth_address) {
-                ids[i] = stringToBytes32("ETH");
-            } else if (tokens[i] == _atom_address) {
-                ids[i] = stringToBytes32("ATOM");
-            } else {
-                revert("Unknown token");
-            }
-        }
+    function getIds() private pure returns (bytes32[] memory) {
+        bytes32[] memory ids = new bytes32[](2);
+        ids[0] = stringToBytes32('ETH');
+        ids[1] = stringToBytes32('ATOM');
         return ids;
-    }
-
-    function getTokens() private view returns (address[] memory) {
-        uint256 length = getTokensLength();
-        address[] memory tokens = new address[](length);
-
-        for (uint256 i = 0; i < length; i++) {
-            tokens[i] = IFastPriceFeed(_fastPriceFeedAddress).tokens(i);
-        }
-
-        return tokens;
-    }
-
-    function getTokensLength() private view returns (uint256) {
-        return 2;
-        // uint256 length = 0;
-
-        // while (true) {
-        //     try IFastPriceFeed(_fastPriceFeedAddress).tokens(length)
-        //     {
-        //         length++;
-        //     } catch (bytes memory) {
-        //         break;
-        //     }
-        // }
-
-        // return length;
     }
 }

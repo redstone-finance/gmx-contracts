@@ -20,7 +20,7 @@ const TOKEN_MANAGER = new ethers.Wallet("0xdf57089febbacf7ba0bc227dafbffa9fc08a9
 async function deployAll() {
   const {fastPriceFeed} = await setupFastPriceFeed()
   const {weth, atom} = await deployAndMintTokens()
-  const redstoneKeeper = await deployContract("RedstoneKeeper", [fastPriceFeed.address, weth.address, atom.address])
+  const redstoneKeeper = await deployContract("RedstoneKeeper", [])
   const {positionRouter, router, vault, usdg, positionUtils} = await setupPositionRouter(fastPriceFeed, weth, atom)
   await configureVault(vault, router, usdg, weth, atom, fastPriceFeed, positionRouter)
   const tokens = [{symbol: "ETH", precision: 100_000, address: weth.address}, {symbol: "ATOM", precision: 100_000, address: atom.address}]

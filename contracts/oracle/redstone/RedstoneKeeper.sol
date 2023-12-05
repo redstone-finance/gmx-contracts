@@ -73,7 +73,7 @@ contract RedstoneKeeper is MainDemoConsumerBase {
                 break;
             }
             uint256 price = adaptPrecision(prices[j]);
-            require(price <= 2147483648, "price exceeds bit limit");
+            require(price < 4294967296, "price exceeds bit limit");
 
             priceBits = priceBits | (price << (j * 32));
         }

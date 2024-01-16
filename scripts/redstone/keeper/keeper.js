@@ -1,6 +1,6 @@
 const express = require("express");
 const ethers = require("ethers");
-const fetch = require('node-fetch');
+const fetch = require("node-fetch");
 require("dotenv").config();
 
 const logger = require("./logger");
@@ -9,6 +9,7 @@ const KEEPER_DEPLOY_KEY = process.env.KEEPER_DEPLOY_KEY;
 const FAST_PRICE_FEED_ADDRESS = process.env.FAST_PRICE_FEED_ADDRESS;
 const POSITION_ROUTER_ADDRESS = process.env.POSITION_ROUTER_ADDRESS;
 const PING_ADDRESS = process.env.PING_ADDRESS;
+const PING_INTERVAL_SECONDS = parseInt(process.env.PING_INTERVAL_SECONDS, 10);
 
 const {
   ETH_ADDRESS,
@@ -16,6 +17,13 @@ const {
   ATOM_ADDRESS,
   PROVIDER_URL,
 } = require("./config");
+
+const {
+  handleExecuteIncreasePositionEvent,
+  handleCancelIncreasePositionEvent,
+  handleExecuteDecreasePositionEvent,
+  handleCancelDecreasePositionEvent,
+} = require("./eventLoggers");
 
 const provider = new ethers.providers.JsonRpcProvider(PROVIDER_URL);
 const keeper = new ethers.Wallet(KEEPER_DEPLOY_KEY, provider);
@@ -52,9 +60,7 @@ const tokens = [
 function pingAddressHandler() {
   fetch(PING_ADDRESS)
     .then((response) => {
-      if (response.ok) {
-        logger.info("Ping successful");
-      } else {
+      if (!response.ok) {
         logger.error("Ping failed");
       }
     })
@@ -63,7 +69,7 @@ function pingAddressHandler() {
     });
 }
 
-setInterval(pingAddressHandler, 60 * 60 * 1000);
+setInterval(pingAddressHandler, PING_INTERVAL_SECONDS * 1000);
 
 const app = express();
 const port = 3000;
@@ -105,16 +111,14 @@ positionRouter.on(
       })}`
     );
 
-    try {
-      updatePriceBitsAndOptionallyExecute(
-        tokens,
-        fastPriceFeed,
-        positionRouter,
-        keeper
-      );
-    } catch (e) {
+    updatePriceBitsAndOptionallyExecute(
+      tokens,
+      fastPriceFeed,
+      positionRouter,
+      keeper
+    ).catch((e) => {
       logger.error(e);
-    }
+    });
   }
 );
 
@@ -155,18 +159,27 @@ positionRouter.on(
       })}`
     );
 
-    try {
-      updatePriceBitsAndOptionallyExecute(
-        tokens,
-        fastPriceFeed,
-        positionRouter,
-        keeper
-      );
-    } catch (e) {
+    updatePriceBitsAndOptionallyExecute(
+      tokens,
+      fastPriceFeed,
+      positionRouter,
+      keeper
+    ).catch((e) => {
       logger.error(e);
-    }
+    });
   }
 );
+
+positionRouter.on(
+  "ExecuteIncreasePosition",
+  handleExecuteIncreasePositionEvent
+);
+positionRouter.on("CancelIncreasePosition", handleCancelIncreasePositionEvent);
+positionRouter.on(
+  "ExecuteDecreasePosition",
+  handleExecuteDecreasePositionEvent
+);
+positionRouter.on("CancelDecreasePosition", handleCancelDecreasePositionEvent);
 
 app.get("/heartbeat", (req, res) => {
   res.send({
